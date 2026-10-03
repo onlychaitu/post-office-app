@@ -1,0 +1,192 @@
+<div class="page-header">
+  <h1>Shipments</h1>
+  <a mat-flat-button color="primary" routerLink="/shipments/new">
+    <mat-icon>add</mat-icon>
+    New shipment
+  </a>
+</div>
+
+<!-- Exact lookup by shipment number (unique, so 0 or 1 result). Filters below are for browsing. -->
+<mat-form-field appearance="outline" class="search-field subscript-free">
+  <mat-label>Find by shipment number</mat-label>
+  <input
+    matInput
+    #searchInput
+    [value]="query().shipmentNumber ?? ''"
+    placeholder="SHP-0000000001"
+    autocomplete="off"
+    (keydown.enter)="search(searchInput.value)"
+  />
+  @if (query().shipmentNumber) {
+    <button matSuffix mat-icon-button aria-label="Clear search" (click)="clearSearch(searchInput)">
+      <mat-icon>close</mat-icon>
+    </button>
+  }
+  <button matSuffix mat-icon-button aria-label="Search" (click)="search(searchInput.value)">
+    <mat-icon>search</mat-icon>
+  </button>
+</mat-form-field>
+
+<div class="filters">
+  <mat-form-field appearance="outline" class="subscript-free">
+    <mat-label>Type</mat-label>
+    <mat-select [value]="query().type ?? ''" (selectionChange)="setFilter('type', $event.value)">
+      <mat-option value="">All</mat-option>
+      @for (option of typeOptions; track option.value) {
+        <mat-option [value]="option.value">{{ option.label }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="subscript-free">
+    <mat-label>Weight</mat-label>
+    <mat-select [value]="query().weightCategory ?? ''" (selectionChange)="setFilter('weightCategory', $event.value)">
+      <mat-option value="">All</mat-option>
+      @for (option of weightOptions; track option.value) {
+        <mat-option [value]="option.value">{{ option.label }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="subscript-free">
+    <mat-label>Status</mat-label>
+    <mat-select [value]="query().status ?? ''" (selectionChange)="setFilter('status', $event.value)">
+      <mat-option value="">All</mat-option>
+      @for (option of statusOptions; track option.value) {
+        <mat-option [value]="option.value">{{ option.label }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="subscript-free">
+    <mat-label>Origin</mat-label>
+    <mat-select [value]="query().originZip ?? ''" (selectionChange)="setFilter('originZip', $event.value)">
+      <mat-option value="">All</mat-option>
+      @for (office of offices(); track office.zipCode) {
+        <mat-option [value]="office.zipCode">{{ office.label }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="subscript-free">
+    <mat-label>Destination</mat-label>
+    <mat-select [value]="query().destinationZip ?? ''" (selectionChange)="setFilter('destinationZip', $event.value)">
+      <mat-option value="">All</mat-option>
+      @for (office of offices(); track office.zipCode) {
+        <mat-option [value]="office.zipCode">{{ office.label }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  @if (hasFilters()) {
+    <button mat-button (click)="clearFilters(searchInput)">
+      <mat-icon>filter_alt_off</mat-icon>
+      Clear filters
+    </button>
+  }
+</div>
+
+<div class="table-card">
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" />
+  }
+
+  <table
+    mat-table
+    matSort
+    matSortDisableClear
+    [dataSource]="result()?.items ?? []"
+    [matSortActive]="query().sort"
+    [matSortDirection]="query().order"
+    (matSortChange)="onSort($event)"
+    aria-label="Shipments"
+  >
+    <ng-container matColumnDef="shipmentNumber">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Shipment number</th>
+      <td mat-cell *matCellDef="let shipment" class="number-cell">{{ shipment.shipmentNumber }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="type">
+      <th mat-header-cell *matHeaderCellDef>Type</th>
+      <td mat-cell *matCellDef="let shipment">{{ typeLabels[shipment.type] }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="weightCategory">
+      <th mat-header-cell *matHeaderCellDef>Weight</th>
+      <td mat-cell *matCellDef="let shipment">{{ weightLabels[shipment.weightCategory] }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="origin">
+      <th mat-header-cell *matHeaderCellDef>Origin</th>
+      <td mat-cell *matCellDef="let shipment">
+        {{ officeLabel({ zipCode: shipment.originZip, name: shipment.originName }) }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="destination">
+      <th mat-header-cell *matHeaderCellDef>Destination</th>
+      <td mat-cell *matCellDef="let shipment">
+        {{ officeLabel({ zipCode: shipment.destinationZip, name: shipment.destinationName }) }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="currentStatus">
+      <th mat-header-cell *matHeaderCellDef>Status</th>
+      <td mat-cell *matCellDef="let shipment">
+        <span class="status" [attr.data-status]="shipment.currentStatus">
+          {{ statusLabels[shipment.currentStatus] }}
+        </span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="createdAt">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Created</th>
+      <td mat-cell *matCellDef="let shipment">{{ shipment.createdAt | date: 'medium' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef class="actions-cell"></th>
+      <td mat-cell *matCellDef="let shipment" class="actions-cell">
+        <button mat-icon-button aria-label="Delete shipment" (click)="remove(shipment, $event)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="columns"></tr>
+    <tr
+      mat-row
+      *matRowDef="let row; columns: columns"
+      class="clickable-row"
+      tabindex="0"
+      (click)="open(row)"
+      (keydown.enter)="open(row)"
+    ></tr>
+
+    <tr class="mat-row" *matNoDataRow>
+      <td class="empty-cell" [attr.colspan]="columns.length">
+        @if (loading()) {
+          Loading…
+        } @else if (loadError(); as message) {
+          <span class="load-error" role="alert">{{ message }}</span>
+        } @else if (query().shipmentNumber) {
+          No shipment found with number {{ query().shipmentNumber }}.
+        } @else if (hasFilters()) {
+          No shipments match the current filters.
+        } @else {
+          No shipments yet. Create the first one.
+        }
+      </td>
+    </tr>
+  </table>
+
+  <mat-paginator
+    [length]="result()?.total ?? 0"
+    [pageIndex]="query().page - 1"
+    [pageSize]="query().pageSize"
+    [pageSizeOptions]="pageSizeOptions"
+    showFirstLastButtons
+    (page)="onPage($event)"
+    aria-label="Select page of shipments"
+  />
+</div>

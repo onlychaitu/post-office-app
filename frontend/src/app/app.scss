@@ -1,0 +1,22 @@
+.app-toolbar {
+  gap: 24px;
+}
+
+.app-title {
+  font-weight: 500;
+}
+
+.app-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.active-link {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.app-content {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}

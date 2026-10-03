@@ -1,0 +1,67 @@
+<a mat-button class="back-link" [routerLink]="backUrl">
+  <mat-icon>arrow_back</mat-icon>
+  Shipments
+</a>
+
+@if (loading()) {
+  <mat-progress-bar mode="indeterminate" />
+}
+
+@if (loadError(); as message) {
+  <p class="load-error" role="alert">{{ message }}</p>
+}
+
+@if (shipment(); as s) {
+  <div class="page-header">
+    <div class="title">
+      <h1>{{ s.shipmentNumber }}</h1>
+      <span class="status" [attr.data-status]="s.currentStatus">{{ statusLabels[s.currentStatus] }}</span>
+    </div>
+    <div class="actions">
+      @if (advanceLabel(); as label) {
+        <button mat-flat-button color="primary" [disabled]="busy()" (click)="advance()">
+          <mat-icon>arrow_forward</mat-icon>
+          {{ label }}
+        </button>
+      }
+      <button mat-stroked-button color="warn" [disabled]="busy()" (click)="remove()">
+        <mat-icon>delete</mat-icon>
+        Delete
+      </button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <section class="card" aria-labelledby="details-heading">
+      <h2 id="details-heading">Details</h2>
+      <dl class="fields">
+        <dt>Type</dt>
+        <dd>{{ typeLabels[s.type] }}</dd>
+        <dt>Weight</dt>
+        <dd>{{ weightLabels[s.weightCategory] }}</dd>
+        <dt>Origin</dt>
+        <dd>{{ officeLabel({ zipCode: s.originZip, name: s.originName }) }}</dd>
+        <dt>Destination</dt>
+        <dd>{{ officeLabel({ zipCode: s.destinationZip, name: s.destinationName }) }}</dd>
+        <dt>Created</dt>
+        <dd>{{ s.createdAt | date: 'medium' }}</dd>
+        <dt>Last updated</dt>
+        <dd>{{ s.updatedAt | date: 'medium' }}</dd>
+      </dl>
+    </section>
+
+    <section class="card" aria-labelledby="history-heading">
+      <h2 id="history-heading">Status history</h2>
+      <ol class="timeline">
+        @for (entry of s.history; track $index; let last = $last) {
+          <li [class.current]="last">
+            <span class="dot" aria-hidden="true"></span>
+            <div class="entry-status">{{ statusLabels[entry.status] }}</div>
+            <div class="entry-office">{{ officeLabel({ zipCode: entry.zipCode, name: entry.officeName }) }}</div>
+            <time class="entry-time" [attr.datetime]="entry.timestamp">{{ entry.timestamp | date: 'medium' }}</time>
+          </li>
+        }
+      </ol>
+    </section>
+  </div>
+}

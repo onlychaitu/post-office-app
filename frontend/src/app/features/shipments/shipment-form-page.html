@@ -1,0 +1,67 @@
+<div class="page-header">
+  <h1>New shipment</h1>
+</div>
+
+<form class="shipment-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+  <mat-form-field appearance="outline">
+    <mat-label>Type</mat-label>
+    <mat-select formControlName="type">
+      @for (option of types; track option.value) {
+        <mat-option [value]="option.value">{{ option.label }}</mat-option>
+      }
+    </mat-select>
+    @if (form.controls.type.errors; as errors) {
+      <mat-error>{{ errors['server'] ?? 'Type is required' }}</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Weight</mat-label>
+    <mat-select formControlName="weightCategory">
+      @for (option of weights; track option.value) {
+        <mat-option [value]="option.value">{{ option.label }}</mat-option>
+      }
+    </mat-select>
+    @if (form.controls.weightCategory.errors; as errors) {
+      <mat-error>{{ errors['server'] ?? 'Weight is required' }}</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Origin post office</mat-label>
+    <mat-select formControlName="originZip" [disabled]="loadingOffices()">
+      @for (office of offices(); track office.zipCode) {
+        <mat-option [value]="office.zipCode">{{ office.label }}</mat-option>
+      }
+    </mat-select>
+    @if (form.controls.originZip.errors; as errors) {
+      <mat-error>{{ errors['server'] ?? 'Origin is required' }}</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Destination post office</mat-label>
+    <mat-select formControlName="destinationZip" [disabled]="loadingOffices()">
+      @for (office of offices(); track office.zipCode) {
+        <mat-option [value]="office.zipCode">{{ office.label }}</mat-option>
+      }
+    </mat-select>
+    @if (form.controls.destinationZip.errors; as errors) {
+      <mat-error>{{ errors['server'] ?? 'Destination is required' }}</mat-error>
+    }
+  </mat-form-field>
+
+  @if (form.errors?.['sameOffice']) {
+    <p class="form-error" role="alert">Destination must be different from the origin.</p>
+  }
+  @if (formError(); as message) {
+    <p class="form-error" role="alert">{{ message }}</p>
+  }
+
+  <div class="form-actions">
+    <a mat-button routerLink="/shipments">Cancel</a>
+    <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
+      {{ saving() ? 'Creating…' : 'Create shipment' }}
+    </button>
+  </div>
+</form>

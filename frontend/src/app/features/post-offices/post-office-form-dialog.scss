@@ -1,0 +1,12 @@
+.form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: min(440px, 80vw);
+  padding-top: 8px;
+}
+
+.form-error {
+  color: var(--mat-sys-error, #b3261e);
+  margin: 0;
+}

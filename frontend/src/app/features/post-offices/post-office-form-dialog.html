@@ -1,0 +1,66 @@
+<h2 mat-dialog-title>{{ office ? 'Edit post office' : 'New post office' }}</h2>
+
+<form [formGroup]="form" (ngSubmit)="save()" novalidate>
+  <mat-dialog-content class="form-content">
+    <mat-form-field appearance="outline">
+      <mat-label>ZIP code</mat-label>
+      <input matInput formControlName="zipCode" autocomplete="off" cdkFocusInitial />
+      @if (form.controls.zipCode.errors; as errors) {
+        <mat-error>
+          @if (errors['server']) {
+            {{ errors['server'] }}
+          } @else if (errors['required']) {
+            ZIP code is required
+          } @else if (errors['pattern']) {
+            Only letters, digits, spaces and hyphens are allowed
+          } @else if (errors['maxlength']) {
+            At most 20 characters
+          }
+        </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" autocomplete="off" />
+      @if (form.controls.name.errors; as errors) {
+        <mat-error>
+          @if (errors['server']) {
+            {{ errors['server'] }}
+          } @else if (errors['required']) {
+            Name is required
+          } @else if (errors['maxlength']) {
+            At most 200 characters
+          }
+        </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Address</mat-label>
+      <input matInput formControlName="address" autocomplete="off" />
+      @if (form.controls.address.errors; as errors) {
+        <mat-error>
+          @if (errors['server']) {
+            {{ errors['server'] }}
+          } @else if (errors['required']) {
+            Address is required
+          } @else if (errors['maxlength']) {
+            At most 500 characters
+          }
+        </mat-error>
+      }
+    </mat-form-field>
+
+    @if (formError(); as message) {
+      <p class="form-error" role="alert">{{ message }}</p>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close [disabled]="saving()">Cancel</button>
+    <button mat-flat-button color="primary" type="submit" [disabled]="saving()">
+      {{ saving() ? 'Saving…' : 'Save' }}
+    </button>
+  </mat-dialog-actions>
+</form>

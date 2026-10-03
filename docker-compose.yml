@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postoffice}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postoffice}
+      POSTGRES_DB: ${POSTGRES_DB:-postoffice}
+    ports:
+      # Host port 5433 avoids clashing with a locally installed Postgres on 5432.
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build: ./backend
+    environment:
+      PORT: 3000
+      DATABASE_URL: postgres://${POSTGRES_USER:-postoffice}:${POSTGRES_PASSWORD:-postoffice}@db:5432/${POSTGRES_DB:-postoffice}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+
+  frontend:
+    build: ./frontend
+    environment:
+      API_URL: http://backend:3000
+    depends_on:
+      - backend
+    ports:
+      - "4200:4200"
+
+volumes:
+  pgdata:

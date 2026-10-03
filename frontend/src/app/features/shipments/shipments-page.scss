@@ -1,0 +1,93 @@
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+
+  h1 {
+    margin: 0;
+  }
+}
+
+.search-field {
+  width: min(420px, 100%);
+  margin-bottom: 8px;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+
+  mat-form-field {
+    width: 200px;
+  }
+}
+
+// The filter fields have no hint/error text, so drop the reserved space under them.
+.subscript-free {
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+}
+
+.table-card {
+  overflow-x: auto;
+  border: 1px solid var(--mat-sys-outline-variant, #cac4d0);
+  border-radius: 12px;
+
+  table {
+    width: 100%;
+  }
+}
+
+.clickable-row {
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--mat-sys-surface-container-low, rgba(0, 0, 0, 0.04));
+  }
+}
+
+.actions-cell {
+  width: 64px;
+  text-align: right;
+}
+
+.number-cell {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.status {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.8125rem;
+  white-space: nowrap;
+  background: #e8eaf6;
+  color: #283593;
+
+  &[data-status='RECEIVED_AT_DESTINATION'] {
+    background: #fff3e0;
+    color: #e65100;
+  }
+
+  &[data-status='DELIVERED'] {
+    background: #e8f5e9;
+    color: #1b5e20;
+  }
+}
+
+.empty-cell {
+  padding: 32px 16px;
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant, #49454f);
+}
+
+.load-error {
+  color: var(--mat-sys-error, #b3261e);
+}

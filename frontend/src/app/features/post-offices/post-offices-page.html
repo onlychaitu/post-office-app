@@ -1,0 +1,63 @@
+<div class="page-header">
+  <h1>Post Offices</h1>
+  <button mat-flat-button color="primary" (click)="add()">
+    <mat-icon>add</mat-icon>
+    New post office
+  </button>
+</div>
+
+<mat-form-field appearance="outline" class="search-field">
+  <mat-label>Search by ZIP code or name</mat-label>
+  <input matInput #searchInput (input)="onSearch(searchInput.value)" autocomplete="off" />
+  <mat-icon matSuffix>search</mat-icon>
+</mat-form-field>
+
+<div class="table-card">
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate" />
+  }
+
+  <table mat-table [dataSource]="offices()" aria-label="Post offices">
+    <ng-container matColumnDef="zipCode">
+      <th mat-header-cell *matHeaderCellDef>ZIP code</th>
+      <td mat-cell *matCellDef="let office">{{ office.zipCode }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let office">{{ office.name }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="address">
+      <th mat-header-cell *matHeaderCellDef>Address</th>
+      <td mat-cell *matCellDef="let office">{{ office.address }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef class="actions-cell"></th>
+      <td mat-cell *matCellDef="let office" class="actions-cell">
+        <button mat-icon-button aria-label="Edit post office" (click)="edit(office)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button aria-label="Delete post office" (click)="remove(office)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="columns"></tr>
+    <tr mat-row *matRowDef="let row; columns: columns"></tr>
+
+    <tr class="mat-row" *matNoDataRow>
+      <td class="empty-cell" [attr.colspan]="columns.length">
+        @if (loading()) {
+          Loading…
+        } @else if (searched()) {
+          No post offices match your search.
+        } @else {
+          No post offices yet. Add the first one.
+        }
+      </td>
+    </tr>
+  </table>
+</div>
